@@ -16,6 +16,20 @@ const FileUpload = ({ onSuccess, onProgress, fileType }: FileUploadProps) => {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const getErrorMessage = async (res: Response, fallback: string) => {
+    const raw = await res.text();
+    if (!raw) {
+      return fallback;
+    }
+
+    try {
+      const parsed = JSON.parse(raw) as { error?: string; message?: string };
+      return parsed.error || parsed.message || fallback;
+    } catch {
+      return fallback;
+    }
+  };
+
   //optional validation
 
   const validateFile = (file: File) => {
@@ -42,13 +56,35 @@ const FileUpload = ({ onSuccess, onProgress, fileType }: FileUploadProps) => {
 
     try {
       const authRes = await fetch("/api/imagekit-auth");
+      if (!authRes.ok) {
+        const message = await getErrorMessage(
+          authRes,
+          "Unable to get upload authorization."
+        );
+
+        if (authRes.status === 401 || authRes.status === 403) {
+          throw new Error("Please log in to upload videos.");
+        }
+
+        throw new Error(message);
+      }
+
       const auth = await authRes.json();
       const authParams = auth.authenticationParameters;
+      const publicKey = process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY;
+
+      if (!publicKey) {
+        throw new Error("Missing NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY.");
+      }
+
+      if (!authParams?.signature || !authParams?.token || !authParams?.expire) {
+        throw new Error("Invalid upload authorization response.");
+      }
 
       const res = await upload({
         file,
         fileName: file.name,
-        publicKey: process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!,
+        publicKey,
         signature: authParams.signature,
         expire: authParams.expire,
         token: authParams.token,
@@ -65,7 +101,7 @@ const FileUpload = ({ onSuccess, onProgress, fileType }: FileUploadProps) => {
       onSuccess(res);
     } catch (error) {
       console.error("Upload failed", error);
-      setError("Upload failed. Please try again.");
+      setError(error instanceof Error ? error.message : "Upload failed. Please try again.");
     } finally {
       setUploading(false);
     }
