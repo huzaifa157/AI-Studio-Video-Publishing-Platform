@@ -21,7 +21,7 @@ export default withAuth(
           return true;
         }
 
-        if (pathname === "/api/video") {
+        if (pathname.startsWith("/api/video")) {
           if (method === "GET") {
             return true;
           }

@@ -2,6 +2,11 @@
 
 A modern, AI-powered video publishing platform built with Next.js, React, and MongoDB. Upload videos, get intelligent title and description suggestions powered by multiple AI providers, and share your content seamlessly.
 
+## Live Demo
+
+- Production: https://ai-studio-video-publishing-platform.vercel.app/
+- Repository: https://github.com/huzaifa157/AI-Studio---Video-Publishing-Platform
+
 ## ✨ Features
 
 - **Video Discovery**: Browse and discover videos with a YouTube-style layout
@@ -71,7 +76,7 @@ NEXTAUTH_SECRET=your-secret-key-here
 # ImageKit
 NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY=your-imagekit-public-key
 IMAGEKIT_PRIVATE_KEY=your-imagekit-private-key
-IMAGEKIT_URL_ENDPOINT=https://ik.imagekit.io/your-account-id
+NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT=https://ik.imagekit.io/your-account-id
 
 # AI Providers (add at least one)
 GROQ_API_KEY=your-groq-api-key
@@ -251,7 +256,7 @@ $password = "Test@123456"
 | `NEXTAUTH_SECRET` | Yes | Secret for NextAuth encryption |
 | `NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY` | Yes | ImageKit public key |
 | `IMAGEKIT_PRIVATE_KEY` | Yes | ImageKit private key |
-| `IMAGEKIT_URL_ENDPOINT` | Yes | ImageKit URL endpoint |
+| `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` | Yes | ImageKit URL endpoint |
 | `GROQ_API_KEY` | No | Groq API key (recommended) |
 | `OPENAI_API_KEY` | No | OpenAI API key |
 | `GEMINI_API_KEY` | No | Google Gemini API key |
