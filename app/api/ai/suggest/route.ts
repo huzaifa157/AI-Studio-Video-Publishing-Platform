@@ -397,7 +397,7 @@ async function generateWithGemini(input: Required<SuggestRequest>) {
     return null;
   }
 
-  const model = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+  const model = process.env.GEMINI_MODEL || "gemini-2.0-flash";
   const prompt = [
     "You write concise, engaging YouTube-style metadata.",
     'Return strict JSON only: {"title":"...","description":"..."}.',
@@ -485,14 +485,22 @@ export async function POST(request: Request) {
         }
       | null = null;
 
-    try {
-      generated =
-        (await generateWithGemini(input)) ??
-        (await generateWithGroq(input)) ??
-        (await generateWithOpenRouter(input)) ??
-        (await generateWithOpenAI(input));
-    } catch {
-      generated = null;
+    const providers = [
+      () => generateWithGemini(input),
+      () => generateWithGroq(input),
+      () => generateWithOpenRouter(input),
+      () => generateWithOpenAI(input),
+    ];
+
+    for (const provider of providers) {
+      try {
+        generated = await provider();
+        if (generated) {
+          break;
+        }
+      } catch {
+        continue;
+      }
     }
 
     if (!generated) {
